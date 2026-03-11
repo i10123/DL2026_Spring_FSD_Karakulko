@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "cc4eecca4162bab4fa9c528c5f3faa089cc6caf7a9805bac95263c39a5471eae"
+    },
+    "frontend-design": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "bd08bd2600b91b5192846b34e813a6dba08c077149dfba379974cfa70a1e9df1"
+    },
+    "skill-creator": {
+      "source": "skillcreatorai/ai-agent-skills",
+      "sourceType": "github",
+      "computedHash": "54c0886829fea5675a4375ebb6450846558f2089489ec3d8f49afd1fc0dcf097"
+    }
+  }
+}

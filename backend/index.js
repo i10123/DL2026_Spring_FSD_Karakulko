@@ -1,19 +1,28 @@
 const express = require('express');
 const cors = require('cors');
-const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
 const { z } = require('zod');
 const fs = require('fs');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = 3001;
 const DB_PATH = path.join(__dirname, 'db.json');
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
-// Инициализация БД, если файла нет
+// 1. RATE LIMITING
+const generateLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 10, // Limit each IP to 10 requests per `window` (here, per minute)
+    message: { error: "Слишком много запросов на генерацию. Подождите минуту." },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// 2. ДЕЙСТВИЯ С БАЗОЙ ДАННЫХ
 if (!fs.existsSync(DB_PATH)) {
     fs.writeFileSync(DB_PATH, JSON.stringify([], null, 2));
 }
@@ -31,27 +40,42 @@ const writeDB = (data) => {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 };
 
-// Схема валидации
-const QRSchema = z.object({
-    content: z.string().min(1, "Содержимое обязательно"),
+// 3. СХЕМЫ ВАЛИДАЦИИ ZOD
+const DesignSchema = z.object({
     colorDark: z.string().optional(),
     colorLight: z.string().optional(),
+    useGradient: z.boolean().optional(),
+    gradientType: z.string().optional(),
+    colorGradient2: z.string().optional(),
     dotsType: z.string().optional(),
     cornersSquareType: z.string().optional(),
     cornersDotType: z.string().optional(),
     logoBase64: z.string().optional(),
+    errorCorrectionLevel: z.string().optional().default('Q'),
+    size: z.number().optional().default(300),
+});
+
+const QRSchema = z.object({
+    type: z.string().min(1),
+    content: z.string().min(1, "Содержимое обязательно"),
+    design: DesignSchema,
     qrCode: z.string().min(1, "Изображение QR-кода обязательно (Base64)"),
 });
 
-// Роут для сохранения сгенерированного на клиенте QR-кода
-app.post('/api/qr/generate', async (req, res) => {
+// 4. ENDPOINTS
+
+// POST /api/qr/generate - создание QR
+app.post('/api/qr/generate', generateLimiter, (req, res) => {
     try {
         const validatedData = QRSchema.parse(req.body);
 
         const newQR = {
             id: uuidv4(),
-            ...validatedData,
-            createdAt: new Date().toISOString(),
+            type: validatedData.type,
+            content: validatedData.content,
+            design: validatedData.design,
+            qrCode: validatedData.qrCode,
+            createdAt: new Date().toISOString()
         };
 
         const db = readDB();
@@ -68,22 +92,50 @@ app.post('/api/qr/generate', async (req, res) => {
     }
 });
 
-// Роут для истории
-// Роут для загрузки истории
+// GET /api/qr/history - история с пагинацией и фильтрами
 app.get('/api/qr/history', (req, res) => {
     try {
-        const db = readDB();
+        const { page = 1, limit = 50, type } = req.query;
+        let db = readDB();
+
         // Сортировка от новых к старым
-        const sortedHistory = [...db].sort((a, b) =>
-            new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        res.json(sortedHistory);
+        db.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        // Фильтрация
+        if (type) {
+            db = db.filter(item => item.type === type);
+        }
+
+        // Пагинация
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const result = db.slice(startIndex, endIndex);
+
+        res.json({
+            total: db.length,
+            page: Number(page),
+            limit: Number(limit),
+            data: result
+        });
     } catch (error) {
         res.status(500).json({ error: "Не удалось загрузить историю" });
     }
 });
 
-// Полная очистка истории
+// GET /api/qr/:id - получение конкретного QR
+app.get('/api/qr/:id', (req, res) => {
+    try {
+        const db = readDB();
+        const qr = db.find(item => item.id === req.params.id);
+
+        if (!qr) return res.status(404).json({ error: "QR код не найден" });
+        res.json(qr);
+    } catch (error) {
+        res.status(500).json({ error: "Ошибка сервера" });
+    }
+});
+
+// DELETE /api/qr/clear - Полная очистка истории
 app.delete('/api/qr/clear', (req, res) => {
     try {
         writeDB([]);
@@ -93,15 +145,14 @@ app.delete('/api/qr/clear', (req, res) => {
     }
 });
 
-// Удаление конкретной записи
+// DELETE /api/qr/:id - Удаление конкретной записи
 app.delete('/api/qr/:id', (req, res) => {
     try {
         const { id } = req.params;
         const db = readDB();
-        const initialLength = db.length;
         const filteredDB = db.filter(item => item.id !== id);
 
-        if (initialLength === filteredDB.length) {
+        if (db.length === filteredDB.length) {
             return res.status(404).json({ error: "Запись не найдена" });
         }
 
@@ -112,6 +163,12 @@ app.delete('/api/qr/:id', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}`);
-});
+
+
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Backend Server running on port ${PORT}`);
+    });
+}
+
+module.exports = app;
