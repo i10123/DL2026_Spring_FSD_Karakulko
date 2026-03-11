@@ -31,7 +31,7 @@ const SMART_TEMPLATES = [
             colorGradient2: '#b45309', // amber-600
             colorLight: '#fffbeb',   // amber-50
             dotsType: 'classy-rounded',
-            cornersSquareType: 'rounded',
+            cornersSquareType: 'extra-rounded',
             cornersDotType: 'dot'
         }
     },

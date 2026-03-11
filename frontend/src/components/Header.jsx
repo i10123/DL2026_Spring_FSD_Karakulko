@@ -13,7 +13,7 @@ export function Header() {
         <header className="p-6 flex justify-between items-center w-full max-w-7xl mx-auto z-10 relative">
             <h1 className="text-2xl font-black tracking-tight flex items-center gap-3">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-                    QR Студия Pro
+                    QR Studio
                 </span>
             </h1>
 

@@ -23,7 +23,7 @@ const PRESETS = [
             colorGradient2: '#db2777',
             colorLight: '#fdf4ff',
             dotsType: 'rounded',
-            cornersSquareType: 'rounded',
+            cornersSquareType: 'extra-rounded',
             cornersDotType: 'dot'
         }
     },
@@ -62,7 +62,7 @@ const PRESETS = [
             colorGradient2: '#8a6300',
             colorLight: '#fdfbf7',
             dotsType: 'classy-rounded',
-            cornersSquareType: 'rounded',
+            cornersSquareType: 'extra-rounded',
             cornersDotType: 'dot'
         }
     },

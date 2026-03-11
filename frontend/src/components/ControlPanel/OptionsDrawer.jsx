@@ -96,8 +96,7 @@ export function OptionsDrawer() {
                                     label="Стиль углов"
                                     configKey="cornersSquareType"
                                     options={[
-                                        { value: 'rounded', label: 'Закругленный' },
-                                        { value: 'extra-rounded', label: 'Супер закруглен.' },
+                                        { value: 'extra-rounded', label: 'Закругленный' },
                                         { value: 'dot', label: 'Точка' },
                                         { value: 'square', label: 'Квадрат' }
                                     ]}

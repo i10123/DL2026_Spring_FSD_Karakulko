@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import QRCodeStyling from 'qr-code-styling';
 import { QRProvider } from './hooks/QRProvider';
 import { useQR } from './hooks/useQR';
 import { useQRApi } from './hooks/useQRApi';
@@ -17,6 +18,7 @@ import { LogoUpload } from './components/ControlPanel/LogoUpload';
 import { QRPreview } from './components/QRPreview';
 import { HistoryRibbon } from './components/HistoryRibbon';
 import { CustomSelect } from './components/CustomSelect';
+import { StardustBackground } from './components/StardustBackground';
 
 const formatOptions = [
   { value: 'png', label: 'PNG' },
@@ -58,14 +60,14 @@ function MainApp() {
 
   const themeClasses = isDarkTheme
     ? {
-      bg: 'bg-midnight text-white selection:bg-indigo-500/30',
-      cardBd: 'bg-[#0a0a0a]/60 border border-white/10 backdrop-blur-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]',
-      ambient: 'from-indigo-950/40 via-[#050505] to-purple-950/30'
+      bg: 'bg-[var(--color-dark-bg)] text-slate-100 selection:bg-fuchsia-500/30',
+      cardBd: 'bg-[var(--color-dark-card)] border border-white/10 backdrop-blur-3xl shadow-[0_15px_60px_rgba(0,0,0,0.8)]',
+      ambient: 'from-fuchsia-900/30 via-midnight to-indigo-900/30'
     }
     : {
-      bg: 'bg-gray-50 text-gray-900 selection:bg-indigo-500/20',
-      cardBd: 'bg-white/70 border border-black/5 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]',
-      ambient: 'from-indigo-100/50 via-white to-fuchsia-100/30'
+      bg: 'bg-[var(--color-light-bg)] text-slate-800 selection:bg-indigo-500/20',
+      cardBd: 'bg-[var(--color-light-card)] border border-black/5 backdrop-blur-2xl shadow-[0_10px_40px_rgb(0,0,0,0.06)]',
+      ambient: 'from-blue-100/60 via-purple-50/50 to-rose-100/60'
     };
 
   const handleSaveToHistory = async () => {
@@ -130,38 +132,24 @@ function MainApp() {
 
     const fileName = `qr_studio_${year}${month}${day}_${hours}${minutes}${seconds}`;
 
-    // Temporarily update size and dynamically scale margin for high-res download
-    const originalSize = config.size;
-
-    // Update instance for high res export (scale margin too so it doesn't thin out)
-    qrInstance.update({
-      width: originalSize * exportSize,
-      height: originalSize * exportSize,
-      margin: 10 * exportSize
-    });
-
     try {
-      // CRITICAL: Yield to the browser event loop! 
-      // qr-code-styling takes a few milliseconds to repaint the canvas at the new, 
-      // heavier resolution. If we download immediately synchronously, we just extract 
-      // the old 300px canvas. Wait 300ms to guarantee full repaint!
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Create a completely separate, dedicated off-screen instance for downloading.
+      // This prevents race conditions with the UI canvas and guarantees correct sizing.
+      const downloadInstance = new QRCodeStyling({
+        ...qrInstance._options,
+        width: config.size * exportSize,
+        height: config.size * exportSize,
+        margin: 10 * exportSize // match the previous logic of scaling margin
+      });
 
-      // Now download from the freshly painted high-res canvas
-      await qrInstance.download({ name: fileName, extension: exportFormat });
+      // No need to wait for repaint since this is off-screen, download immediately
+      await downloadInstance.download({ name: fileName, extension: exportFormat });
 
       // Trigger premium success toast notification
       setSuccessEvent('download');
       setTimeout(() => setSuccessEvent(null), 3000);
     } catch (err) {
       console.error("Failed to download QR code", err);
-    } finally {
-      // Immediately restore size and original margin for UI preview
-      qrInstance.update({
-        width: originalSize,
-        height: originalSize,
-        margin: 10
-      });
     }
   };
 
@@ -175,6 +163,7 @@ function MainApp() {
 
       {/* Animated Background Glows */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Deep ambient glow 1 */}
         <motion.div
           animate={{
             x: [0, 80, 0],
@@ -183,8 +172,9 @@ function MainApp() {
             scale: [1, 1.1, 1],
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full blur-[100px] opacity-[0.15] bg-indigo-600/40"
+          className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-[100px] opacity-[0.2] bg-indigo-600/40"
         />
+        {/* Deep ambient glow 2 */}
         <motion.div
           animate={{
             x: [0, -60, 0],
@@ -193,10 +183,13 @@ function MainApp() {
             scale: [1, 1.2, 1],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-full blur-[120px] opacity-[0.1] bg-purple-600/30"
+          className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-[50%_50%_20%_80%/25%_80%_20%_75%] blur-[120px] opacity-[0.15] bg-purple-600/30"
         />
+        {/* Deep ambient glow 3 */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full blur-[150px] opacity-[0.05] bg-blue-500/20" />
       </div>
+
+      <StardustBackground isDarkTheme={isDarkTheme} />
 
       <Header />
 

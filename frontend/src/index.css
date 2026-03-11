@@ -7,7 +7,15 @@
 */
 :root {
   --font-sans: "Inter", "SF Pro Display", system-ui, sans-serif;
-  --color-midnight: radial-gradient(circle at top right, #0a0a1a 0%, #050505 100%);
+  
+  /* Dark Mode Variables */
+  --color-dark-bg: #050505;
+  --color-dark-card: rgba(17, 17, 17, 0.7);
+  
+  /* Light Mode Variables */
+  --color-light-bg: #fcfcfc;
+  --color-light-card: rgba(255, 255, 255, 0.8);
+  /* Cache buster V2 */
 }
 
 @layer base {
@@ -25,6 +33,27 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.3); /* gray-400 with opacity */
+    border-radius: 10px;
+  }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+  }
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
   }
 
   .bg-noise {
