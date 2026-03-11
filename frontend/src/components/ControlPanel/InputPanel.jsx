@@ -104,30 +104,52 @@ export function InputPanel() {
             {/* Toggle Mode */}
             <div className="flex justify-center">
                 <div className={cn(
-                    "flex p-1 rounded-2xl border",
+                    "flex p-1 rounded-2xl border relative",
                     isDarkTheme ? "bg-white/5 border-white/10" : "bg-black/5 border-black/5"
                 )}>
                     <button
                         onClick={() => setConfig({ isSmartMode: true })}
                         className={cn(
-                            "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-bold transition-all",
+                            "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-bold transition-colors relative z-10 overflow-hidden",
                             config.isSmartMode 
-                                ? (isDarkTheme ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-indigo-600 shadow-sm")
-                                : "text-gray-500 hover:text-gray-400"
+                                ? (isDarkTheme ? "text-white" : "text-indigo-600")
+                                : "text-gray-500 hover:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5"
                         )}
                     >
-                        <Sparkles size={16} /> Умный ввод
+                        {config.isSmartMode && (
+                            <motion.div
+                                layoutId="modeTabBg"
+                                className={cn(
+                                    "absolute inset-0 rounded-xl z-[-1]",
+                                    isDarkTheme ? "bg-indigo-600 shadow-lg" : "bg-white shadow-sm"
+                                )}
+                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                        )}
+                        <Sparkles size={16} className="relative z-10" /> 
+                        <span className="relative z-10">Умный ввод</span>
                     </button>
                     <button
                         onClick={() => setConfig({ isSmartMode: false })}
                         className={cn(
-                            "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-bold transition-all",
+                            "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-bold transition-colors relative z-10 overflow-hidden",
                             !config.isSmartMode 
-                                ? (isDarkTheme ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-indigo-600 shadow-sm")
-                                : "text-gray-500 hover:text-gray-400"
+                                ? (isDarkTheme ? "text-white" : "text-indigo-600")
+                                : "text-gray-500 hover:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5"
                         )}
                     >
-                        <Settings2 size={16} /> Ручная настройка
+                        {!config.isSmartMode && (
+                            <motion.div
+                                layoutId="modeTabBg"
+                                className={cn(
+                                    "absolute inset-0 rounded-xl z-[-1]",
+                                    isDarkTheme ? "bg-indigo-600 shadow-lg" : "bg-white shadow-sm"
+                                )}
+                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                        )}
+                        <Settings2 size={16} className="relative z-10" /> 
+                        <span className="relative z-10">Ручная настройка</span>
                     </button>
                 </div>
             </div>
