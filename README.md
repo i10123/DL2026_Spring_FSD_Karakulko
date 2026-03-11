@@ -9,7 +9,6 @@
 
 ```bash
 # 1. Склонируйте репозиторий и перейдите в папку
-git clone <repository-url>
 cd DL2026_Spring_FSD_Karakulko
 
 # 2. Установите зависимости (сработает сразу для корня, frontend и backend)
