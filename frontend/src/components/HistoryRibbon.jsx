@@ -51,12 +51,12 @@ export function HistoryRibbon({ onSelectHistoryItem }) {
                     {Object.values(ACHIEVEMENTS_LIST).map(ach => {
                         const isUnlocked = unlocked.includes(ach.id);
                         return (
-                            <div 
-                                key={ach.id} 
+                            <div
+                                key={ach.id}
                                 onClick={() => handleAchievementClick(ach)}
                                 className={cn(
                                     "flex flex-col items-center justify-center min-w-[70px] p-2 rounded-xl border transition-all cursor-pointer",
-                                    isUnlocked 
+                                    isUnlocked
                                         ? (isDarkTheme ? "bg-indigo-500/20 border-indigo-400 text-white" : "bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm hover:bg-indigo-100")
                                         : (isDarkTheme ? "bg-white/5 border-white/10 opacity-40 grayscale hover:opacity-70" : "bg-black/5 border-black/10 opacity-40 grayscale hover:opacity-70")
                                 )}
@@ -86,35 +86,34 @@ export function HistoryRibbon({ onSelectHistoryItem }) {
                 )}
             </div>
 
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(130px,1fr))] gap-4 overflow-y-auto w-full custom-scrollbar p-1 flex-1">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-6 overflow-y-auto w-full custom-scrollbar p-2 flex-1 min-h-0 content-start auto-rows-min">
                 <AnimatePresence>
                     {history.length > 0 ? (
                         history.map((item) => (
                             <motion.div
                                 key={item.id}
-                                layout
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                 className={cn(
-                                    "flex flex-col p-3 rounded-2xl transition-all cursor-pointer relative group overflow-hidden border self-start",
+                                    "flex flex-col p-4 rounded-[2.5rem] transition-all cursor-pointer relative group overflow-hidden border",
                                     isDarkTheme
                                         ? "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
-                                        : "bg-white border-black/5 shadow-sm hover:shadow-lg hover:border-black/10"
+                                        : "bg-white border-black/5 shadow-sm hover:shadow-xl hover:border-black/10"
                                 )}
                                 onClick={() => onSelectHistoryItem && onSelectHistoryItem(item)}
                             >
-                                <div className="w-full aspect-square bg-white rounded-xl mb-3 overflow-hidden p-2 flex items-center justify-center shadow-inner relative group-hover:scale-[0.98] transition-transform">
+                                <div className="w-full aspect-square bg-white rounded-2xl mb-4 overflow-hidden p-3 flex items-center justify-center shadow-inner relative group-hover:scale-[0.98] transition-transform shrink-0">
                                     <img src={item.qrCode} alt="History QR" className="w-full h-full object-contain" />
 
-                                    <div className="absolute top-1 right-1 flex flex-col gap-2">
+                                    <div className="absolute top-2 right-2 flex flex-col gap-2">
                                         <button
                                             onClick={(e) => handleDelete(item.id, e)}
-                                            className="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
+                                            className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
                                             title="Удалить навсегда"
                                         >
-                                            <Trash2 size={12} />
+                                            <Trash2 size={14} />
                                         </button>
                                     </div>
                                 </div>
@@ -149,28 +148,28 @@ export function HistoryRibbon({ onSelectHistoryItem }) {
                             )}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <button 
+                            <button
                                 onClick={() => setLockedAchModal(null)}
                                 className={cn("absolute top-4 right-4 p-2 rounded-full transition-colors", isDarkTheme ? "hover:bg-white/10 text-white/50 hover:text-white" : "hover:bg-black/5 text-black/50 hover:text-black")}
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </button>
-                            
+
                             <div className={cn("w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-2", isDarkTheme ? "bg-white/5" : "bg-black/5")}>
                                 <span className={cn("grayscale opacity-50")}>{lockedAchModal.icon}</span>
                             </div>
-                            
+
                             <div>
                                 <h3 className="text-xl font-black mb-2">{lockedAchModal.title}</h3>
                                 <p className={cn("text-sm font-medium leading-relaxed", isDarkTheme ? "text-white/60" : "text-black/60")}>
-                                    Упс, это достижение пока заблокировано. Чтобы его получить, вам нужно:<br/>
+                                    Упс, это достижение пока заблокировано. Чтобы его получить, вам нужно:<br />
                                     <span className={cn("inline-block mt-3 font-bold px-4 py-2 rounded-xl", isDarkTheme ? "bg-indigo-500/20 border-indigo-500/30 border text-indigo-300" : "bg-indigo-50 border-indigo-100 border text-indigo-700")}>
                                         {lockedAchModal.description}
                                     </span>
                                 </p>
                             </div>
-                            
-                            <button 
+
+                            <button
                                 onClick={() => setLockedAchModal(null)}
                                 className={cn("w-full py-4 mt-2 rounded-xl font-bold transition-all active:scale-95", isDarkTheme ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-black")}
                             >
